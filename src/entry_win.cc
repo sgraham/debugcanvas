@@ -14,9 +14,6 @@
 
 #include <windowsx.h>
 
-#define ENTRY_DEFAULT_WIDTH 1280
-#define ENTRY_DEFAULT_HEIGHT 720
-
 extern int _main_(int _argc, char** _argv);
 
 struct KeyModifiersMapping {
@@ -152,20 +149,18 @@ struct Context {
     ::RegisterClassExA(&wnd);
 
     hwnd_ = ::CreateWindowA("seaborgium",
-                             "Seaborgium",
-                             WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-                             0,
-                             0,
-                             ENTRY_DEFAULT_WIDTH,
-                             ENTRY_DEFAULT_HEIGHT,
-                             NULL,
-                             NULL,
-                             instance,
-                             0);
+                            "Seaborgium",
+                            WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+                            0,
+                            0,
+                            1024,
+                            768,
+                            NULL,
+                            NULL,
+                            instance,
+                            0);
 
     bgfx::winSetHwnd(hwnd_);
-
-    Adjust(ENTRY_DEFAULT_WIDTH, ENTRY_DEFAULT_HEIGHT);
 
     MainThreadEntry mte;
     mte.argc = argc;
@@ -175,7 +170,7 @@ struct Context {
     thread.init(mte.ThreadFunc, &mte);
     initialized_ = true;
 
-    event_queue_.PostSizeEvent(ENTRY_DEFAULT_WIDTH, ENTRY_DEFAULT_HEIGHT);
+    ShowWindow(hwnd_, SW_SHOWMAXIMIZED);
 
     MSG msg;
     msg.message = WM_NULL;
@@ -274,29 +269,6 @@ struct Context {
     }
 
     return DefWindowProc(_hwnd, _id, _wparam, _lparam);
-  }
-
-  void Adjust(uint32_t _width, uint32_t _height) {
-    ShowWindow(hwnd_, SW_SHOWNORMAL);
-    RECT newrect = {0, 0, (LONG)_width, (LONG)_height};
-    DWORD style = WS_POPUP | WS_SYSMENU;
-
-    RECT rect;
-    GetWindowRect(hwnd_, &rect);
-    style = GetWindowLong(hwnd_, GWL_STYLE);
-
-    SetWindowLong(hwnd_, GWL_STYLE, style);
-    AdjustWindowRect(&newrect, style, FALSE);
-    UpdateWindow(hwnd_);
-
-    int32_t left = rect.left;
-    int32_t top = rect.top;
-    int32_t width = (newrect.right - newrect.left);
-    int32_t height = (newrect.bottom - newrect.top);
-
-    SetWindowPos(hwnd_, HWND_TOP, left, top, width, height, SWP_SHOWWINDOW);
-
-    ShowWindow(hwnd_, SW_RESTORE);
   }
 
   static LRESULT CALLBACK
