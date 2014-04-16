@@ -14,9 +14,6 @@
 
 #include <windowsx.h>
 
-#define WM_USER_SET_WINDOW_SIZE (WM_USER + 0)
-#define WM_USER_TOGGLE_WINDOW_FRAME (WM_USER + 1)
-
 #define ENTRY_DEFAULT_WIDTH 1280
 #define ENTRY_DEFAULT_HEIGHT 720
 
@@ -231,20 +228,6 @@ struct Context {
   LRESULT Process(HWND _hwnd, UINT _id, WPARAM _wparam, LPARAM _lparam) {
     if (m_init) {
       switch (_id) {
-        case WM_USER_SET_WINDOW_SIZE: {
-          uint32_t width = GET_X_LPARAM(_lparam);
-          uint32_t height = GET_Y_LPARAM(_lparam);
-          Adjust(width, height, true);
-        } break;
-
-        case WM_USER_TOGGLE_WINDOW_FRAME: {
-          if (m_frame) {
-            m_oldWidth = m_width;
-            m_oldHeight = m_height;
-          }
-          Adjust(m_oldWidth, m_oldHeight, !m_frame);
-        } break;
-
         case WM_DESTROY:
           break;
 
@@ -498,17 +481,6 @@ Context::WndProc(HWND _hwnd, UINT _id, WPARAM _wparam, LPARAM _lparam) {
 const Event* Poll() { return s_ctx.event_queue_.Poll(); }
 
 void Release(const Event* event) { s_ctx.event_queue_.Release(event); }
-
-void setWindowSize(uint32_t _width, uint32_t _height) {
-  PostMessage(s_ctx.m_hwnd,
-              WM_USER_SET_WINDOW_SIZE,
-              0,
-              (_height << 16) | (_width & 0xffff));
-}
-
-void toggleWindowFrame() {
-  PostMessage(s_ctx.m_hwnd, WM_USER_TOGGLE_WINDOW_FRAME, 0, 0);
-}
 
 int32_t MainThreadEntry::ThreadFunc(void* user_data) {
   MainThreadEntry* self = static_cast<MainThreadEntry*>(user_data);

@@ -4,7 +4,6 @@ project (DEBUGCANVAS)
 add_executable(debugcanvas
   src/main.cc
   src/entry_win.cc
-  src/system.cc
 
   # bgfx example setup stuff, to be nuked.
   third_party/bgfx/examples/common/font/font_manager.cpp
