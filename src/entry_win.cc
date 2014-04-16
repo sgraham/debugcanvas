@@ -211,7 +211,7 @@ struct Context {
     while (!m_exit) {
       WaitMessage();
 
-      while (0 != PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE)) {
+      while (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE) != 0) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
       }
@@ -251,9 +251,8 @@ struct Context {
             case SC_MINIMIZE:
             case SC_RESTORE: {
               HWND parent = GetWindow(_hwnd, GW_OWNER);
-              if (NULL != parent) {
+              if (parent)
                 PostMessage(parent, _id, _wparam, _lparam);
-              }
             }
           }
           break;
@@ -299,7 +298,7 @@ struct Context {
           uint8_t modifiers = TranslateKeyModifiers();
           Key::Enum key = TranslateKey(_wparam);
 
-          if (Key::Print == key && 0x3 == ((uint32_t)(_lparam) >> 30)) {
+          if (key == Key::Print && ((uint32_t)(_lparam) >> 30) == 0x3) {
             // VK_SNAPSHOT doesn't generate keydown event. Fire on down event
             // when previous
             // key state bit is set to 1 and transition state bit is set to 1.
@@ -380,7 +379,7 @@ struct Context {
     }
 
     HWND parent = GetWindow(m_hwnd, GW_OWNER);
-    if (NULL != parent) {
+    if (parent) {
       if (_windowFrame) {
         SetWindowPos(parent, HWND_TOP, -32000, -32000, 0, 0, SWP_SHOWWINDOW);
       } else {
