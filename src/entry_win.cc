@@ -137,7 +137,7 @@ struct Context {
   }
 
   int32_t Run(int argc, char** argv) {
-    HINSTANCE instance = GetModuleHandle(NULL);
+    HINSTANCE instance = ::GetModuleHandle(NULL);
 
     WNDCLASSEX wnd;
     memset(&wnd, 0, sizeof(wnd));
@@ -145,10 +145,10 @@ struct Context {
     wnd.style = CS_HREDRAW | CS_VREDRAW;
     wnd.lpfnWndProc = WndProc;
     wnd.hInstance = instance;
-    wnd.hIcon = ::LoadIcon(instance, IDI_APPLICATION);
-    wnd.hCursor = ::LoadCursor(instance, IDC_ARROW);
+    wnd.hIcon = ::LoadIcon(NULL, IDI_APPLICATION);
+    wnd.hCursor = ::LoadCursor(NULL, IDC_ARROW);
     wnd.lpszClassName = "seaborgium";
-    wnd.hIconSm = ::LoadIcon(instance, IDI_APPLICATION);
+    wnd.hIconSm = ::LoadIcon(NULL, IDI_APPLICATION);
     ::RegisterClassExA(&wnd);
 
     hwnd_ = ::CreateWindowA("seaborgium",
