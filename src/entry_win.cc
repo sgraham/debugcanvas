@@ -58,7 +58,7 @@ struct MainThreadEntry {
 };
 
 struct Context {
-  Context() : m_frame(true), m_init(false), m_exit(false) {
+  Context() : m_init(false), m_exit(false) {
     memset(s_translate_key, 0, sizeof(s_translate_key));
     s_translate_key[VK_ESCAPE] = Key::Esc;
     s_translate_key[VK_RETURN] = Key::Return;
@@ -140,18 +140,6 @@ struct Context {
     HINSTANCE instance = GetModuleHandle(NULL);
 
     WNDCLASSEX wnd;
-    // XXX?
-    memset(&wnd, 0, sizeof(wnd));
-    wnd.cbSize = sizeof(wnd);
-    wnd.lpfnWndProc = ::DefWindowProc;
-    wnd.hInstance = instance;
-    wnd.hIcon = ::LoadIcon(instance, IDI_APPLICATION);
-    wnd.hCursor = ::LoadCursor(instance, IDC_ARROW);
-    wnd.hbrBackground = (HBRUSH)::GetStockObject(BLACK_BRUSH);
-    wnd.lpszClassName = "seaborgium_letterbox";
-    wnd.hIconSm = ::LoadIcon(instance, IDI_APPLICATION);
-    ::RegisterClassExA(&wnd);
-
     memset(&wnd, 0, sizeof(wnd));
     wnd.cbSize = sizeof(wnd);
     wnd.style = CS_HREDRAW | CS_VREDRAW;
@@ -163,18 +151,6 @@ struct Context {
     wnd.hIconSm = ::LoadIcon(instance, IDI_APPLICATION);
     ::RegisterClassExA(&wnd);
 
-    HWND hwnd = ::CreateWindowA("seaborgium_letterbox",
-                                "Seaborgium",
-                                WS_POPUP | WS_SYSMENU,
-                                -32000,
-                                -32000,
-                                0,
-                                0,
-                                NULL,
-                                NULL,
-                                instance,
-                                0);
-
     m_hwnd = ::CreateWindowA("seaborgium",
                              "Seaborgium",
                              WS_OVERLAPPEDWINDOW | WS_VISIBLE,
@@ -182,14 +158,14 @@ struct Context {
                              0,
                              ENTRY_DEFAULT_WIDTH,
                              ENTRY_DEFAULT_HEIGHT,
-                             hwnd,
+                             NULL,
                              NULL,
                              instance,
                              0);
 
     bgfx::winSetHwnd(m_hwnd);
 
-    Adjust(ENTRY_DEFAULT_WIDTH, ENTRY_DEFAULT_HEIGHT, true);
+    Adjust(ENTRY_DEFAULT_WIDTH, ENTRY_DEFAULT_HEIGHT);
     m_width = ENTRY_DEFAULT_WIDTH;
     m_height = ENTRY_DEFAULT_HEIGHT;
     m_oldWidth = ENTRY_DEFAULT_WIDTH;
@@ -220,7 +196,6 @@ struct Context {
     thread.shutdown();
 
     DestroyWindow(m_hwnd);
-    DestroyWindow(hwnd);
 
     return 0;
   }
@@ -245,17 +220,6 @@ struct Context {
           m_height = height;
           event_queue_.PostSizeEvent(m_width, m_height);
         } break;
-
-        case WM_SYSCOMMAND:
-          switch (_wparam) {
-            case SC_MINIMIZE:
-            case SC_RESTORE: {
-              HWND parent = GetWindow(_hwnd, GW_OWNER);
-              if (parent)
-                PostMessage(parent, _id, _wparam, _lparam);
-            }
-          }
-          break;
 
         case WM_MOUSEMOVE: {
           int32_t mx = GET_X_LPARAM(_lparam);
@@ -319,7 +283,7 @@ struct Context {
     return DefWindowProc(_hwnd, _id, _wparam, _lparam);
   }
 
-  void Adjust(uint32_t _width, uint32_t _height, bool _windowFrame) {
+  void Adjust(uint32_t _width, uint32_t _height) {
     m_width = _width;
     m_height = _height;
     m_aspectRatio = float(_width) / float(_height);
@@ -329,27 +293,11 @@ struct Context {
     RECT newrect = {0, 0, (LONG)_width, (LONG)_height};
     DWORD style = WS_POPUP | WS_SYSMENU;
 
-    if (m_frame) {
-      GetWindowRect(m_hwnd, &m_rect);
-      m_style = GetWindowLong(m_hwnd, GWL_STYLE);
-    }
+    GetWindowRect(m_hwnd, &m_rect);
+    m_style = GetWindowLong(m_hwnd, GWL_STYLE);
 
-    if (_windowFrame) {
-      rect = m_rect;
-      style = m_style;
-    } else {
-#if defined(__MINGW32__)
-      rect = m_rect;
-      style = m_style;
-#else
-      HMONITOR monitor = MonitorFromWindow(m_hwnd, MONITOR_DEFAULTTONEAREST);
-      MONITORINFO mi;
-      mi.cbSize = sizeof(mi);
-      GetMonitorInfo(monitor, &mi);
-      newrect = mi.rcMonitor;
-      rect = mi.rcMonitor;
-#endif  // !defined(__MINGW__)
-    }
+    rect = m_rect;
+    style = m_style;
 
     SetWindowLong(m_hwnd, GWL_STYLE, style);
     uint32_t prewidth = newrect.right - newrect.left;
@@ -359,45 +307,14 @@ struct Context {
     m_frameHeight = (newrect.bottom - newrect.top) - preheight;
     UpdateWindow(m_hwnd);
 
-    if (rect.left == -32000 || rect.top == -32000) {
-      rect.left = 0;
-      rect.top = 0;
-    }
-
     int32_t left = rect.left;
     int32_t top = rect.top;
     int32_t width = (newrect.right - newrect.left);
     int32_t height = (newrect.bottom - newrect.top);
 
-    if (!_windowFrame) {
-      float aspectRatio = 1.0f / m_aspectRatio;
-      width = bx::uint32_max(ENTRY_DEFAULT_WIDTH / 4, width);
-      height = uint32_t(float(width) * aspectRatio);
-
-      left = newrect.left + (newrect.right - newrect.left - width) / 2;
-      top = newrect.top + (newrect.bottom - newrect.top - height) / 2;
-    }
-
-    HWND parent = GetWindow(m_hwnd, GW_OWNER);
-    if (parent) {
-      if (_windowFrame) {
-        SetWindowPos(parent, HWND_TOP, -32000, -32000, 0, 0, SWP_SHOWWINDOW);
-      } else {
-        SetWindowPos(parent,
-                     HWND_TOP,
-                     newrect.left,
-                     newrect.top,
-                     newrect.right - newrect.left,
-                     newrect.bottom - newrect.top,
-                     SWP_SHOWWINDOW);
-      }
-    }
-
     SetWindowPos(m_hwnd, HWND_TOP, left, top, width, height, SWP_SHOWWINDOW);
 
     ShowWindow(m_hwnd, SW_RESTORE);
-
-    m_frame = _windowFrame;
   }
 
   void setMousePos(int32_t _mx, int32_t _my) {
@@ -425,7 +342,6 @@ struct Context {
   int32_t m_mx;
   int32_t m_my;
 
-  bool m_frame;
   bool m_init;
   bool m_exit;
 };
