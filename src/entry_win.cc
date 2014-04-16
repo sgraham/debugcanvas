@@ -277,18 +277,13 @@ struct Context {
   }
 
   void Adjust(uint32_t _width, uint32_t _height) {
-    m_aspectRatio = float(_width) / float(_height);
-
     ShowWindow(hwnd_, SW_SHOWNORMAL);
-    RECT rect;
     RECT newrect = {0, 0, (LONG)_width, (LONG)_height};
     DWORD style = WS_POPUP | WS_SYSMENU;
 
-    GetWindowRect(hwnd_, &m_rect);
-    m_style = GetWindowLong(hwnd_, GWL_STYLE);
-
-    rect = m_rect;
-    style = m_style;
+    RECT rect;
+    GetWindowRect(hwnd_, &rect);
+    style = GetWindowLong(hwnd_, GWL_STYLE);
 
     SetWindowLong(hwnd_, GWL_STYLE, style);
     AdjustWindowRect(&newrect, style, FALSE);
@@ -304,25 +299,11 @@ struct Context {
     ShowWindow(hwnd_, SW_RESTORE);
   }
 
-  void setMousePos(int32_t _mx, int32_t _my) {
-    POINT pt = {_mx, _my};
-    ClientToScreen(hwnd_, &pt);
-    SetCursorPos(pt.x, pt.y);
-  }
-
   static LRESULT CALLBACK
       WndProc(HWND _hwnd, UINT _id, WPARAM _wparam, LPARAM _lparam);
 
   EventQueue event_queue_;
-
   HWND hwnd_;
-  RECT m_rect;
-  DWORD m_style;
-  float m_aspectRatio;
-
-  int32_t m_mx;
-  int32_t m_my;
-
   bool initialized_;
   bool should_exit_;
 };
