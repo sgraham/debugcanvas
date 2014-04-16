@@ -14,7 +14,7 @@
 
 #include <windowsx.h>
 
-extern int _main_(int _argc, char** _argv);
+extern int RealMain(int _argc, char** _argv);
 
 namespace {
 
@@ -291,7 +291,7 @@ Context::WndProc(HWND _hwnd, UINT _id, WPARAM _wparam, LPARAM _lparam) {
 
 int32_t MainThreadEntry::ThreadFunc(void* user_data) {
   MainThreadEntry* self = static_cast<MainThreadEntry*>(user_data);
-  int32_t result = _main_(self->argc, self->argv);
+  int32_t result = RealMain(self->argc, self->argv);
   PostMessage(g_context.hwnd_, WM_QUIT, 0, 0);
   return result;
 }

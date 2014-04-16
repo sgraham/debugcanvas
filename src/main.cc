@@ -113,7 +113,7 @@ bool ProcessEvents(uint32_t& _width,
   return s_exit;
 }
 
-int _main_(int /*_argc*/, char** /*_argv*/) {
+int RealMain(int /*_argc*/, char** /*_argv*/) {
   uint32_t width = 1280;
   uint32_t height = 720;
   uint32_t debug = BGFX_DEBUG_TEXT;
