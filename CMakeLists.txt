@@ -24,7 +24,6 @@ add_executable(debugcanvas
   third_party/bgfx/src/renderer_gl.cpp
   third_party/bgfx/src/renderer_null.cpp
   third_party/bgfx/src/vertexdecl.cpp
-
   )
 
 set (CMAKE_CXX_FLAGS "/W4 /WX /wd4530 /wd4244 /wd4127 /wd4512 /wd4245 /wd4201 /wd4324 /wd4611")
@@ -35,6 +34,9 @@ add_definitions (
   -D__STDC_LIMIT_MACROS
   -D__STDC_FORMAT_MACROS
   -D__STDC_CONSTANT_MACROS
+  # XXX
+  -DBGFX_CONFIG_DEBUG=1
+  -DBGFX_CONFIG_RENDERER_DIRECT3D11=1
   )
 
 include_directories(
