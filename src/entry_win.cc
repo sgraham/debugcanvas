@@ -237,46 +237,6 @@ struct Context {
           event_queue_.PostExitEvent();
           break;
 
-        case WM_SIZING: {
-          RECT& rect = *(RECT*)_lparam;
-          uint32_t width = rect.right - rect.left - m_frameWidth;
-          uint32_t height = rect.bottom - rect.top - m_frameHeight;
-
-          // Recalculate size according to aspect ratio
-          switch (_wparam) {
-            case WMSZ_LEFT:
-            case WMSZ_RIGHT: {
-              float aspectRatio = 1.0f / m_aspectRatio;
-              width = bx::uint32_max(ENTRY_DEFAULT_WIDTH / 4, width);
-              height = uint32_t(float(width) * aspectRatio);
-            } break;
-
-            default: {
-              float aspectRatio = m_aspectRatio;
-              height = bx::uint32_max(ENTRY_DEFAULT_HEIGHT / 4, height);
-              width = uint32_t(float(height) * aspectRatio);
-            } break;
-          }
-
-          // Recalculate position using different anchor points
-          switch (_wparam) {
-            case WMSZ_LEFT:
-            case WMSZ_TOPLEFT:
-            case WMSZ_BOTTOMLEFT:
-              rect.left = rect.right - width - m_frameWidth;
-              rect.bottom = rect.top + height + m_frameHeight;
-              break;
-
-            default:
-              rect.right = rect.left + width + m_frameWidth;
-              rect.bottom = rect.top + height + m_frameHeight;
-              break;
-          }
-
-          event_queue_.PostSizeEvent(m_width, m_height);
-        }
-          return 0;
-
         case WM_SIZE: {
           uint32_t width = GET_X_LPARAM(_lparam);
           uint32_t height = GET_Y_LPARAM(_lparam);
