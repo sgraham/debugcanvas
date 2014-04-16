@@ -2,8 +2,9 @@ cmake_minimum_required(VERSION 2.8)
 project (DEBUGCANVAS)
 
 add_executable(debugcanvas
+  src/main.cc
+
   # bgfx example setup stuff, to be nuked.
-  third_party/bgfx/examples/11-fontsdf/fontsdf.cpp
   third_party/bgfx/examples/common/entry/camera.cpp
   third_party/bgfx/examples/common/entry/cmd.cpp
   third_party/bgfx/examples/common/entry/dbg.cpp
@@ -16,7 +17,6 @@ add_executable(debugcanvas
   third_party/bgfx/examples/common/entry/entry_sdl.cpp
   third_party/bgfx/examples/common/entry/entry_windows.cpp
   third_party/bgfx/examples/common/entry/input.cpp
-  third_party/bgfx/examples/common/imgui/imgui.cpp
   third_party/bgfx/examples/common/font/font_manager.cpp
   third_party/bgfx/examples/common/font/text_buffer_manager.cpp
   third_party/bgfx/examples/common/font/text_metrics.cpp
@@ -38,7 +38,7 @@ add_executable(debugcanvas
 
   )
 
-set (CMAKE_CXX_FLAGS "/W4 /wd4530 /wd4244 /wd4127 /wd4512 /wd4245 /wd4201 /wd4324")
+set (CMAKE_CXX_FLAGS "/W4 /WX /wd4530 /wd4244 /wd4127 /wd4512 /wd4245 /wd4201 /wd4324 /wd4611")
 
 add_definitions (
   -D_CRT_SECURE_NO_WARNINGS
@@ -49,11 +49,11 @@ add_definitions (
   )
 
 include_directories(
+  third_party
   third_party/bx/include/compat/msvc
   third_party/bx/include
   third_party/bgfx/include
 
   # XXX
   third_party/bgfx/examples/common
-  third_party/bgfx/3rdparty
   )
