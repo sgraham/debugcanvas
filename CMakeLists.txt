@@ -22,6 +22,7 @@ include_directories(
   third_party
   third_party/bx/include
   third_party/bgfx/include
+  .build
 
   # XXX Windows only.
   third_party/bx/include/compat/msvc
@@ -51,11 +52,11 @@ add_executable(debugcanvas
   fs_fontsdf.bin.h
 
   # bgfx example setup stuff, to be nuked.
-  third_party/bgfx/examples/common/font/font_manager.cpp
-  third_party/bgfx/examples/common/font/text_buffer_manager.cpp
-  third_party/bgfx/examples/common/font/text_metrics.cpp
-  third_party/bgfx/examples/common/font/utf8.cpp
-  third_party/bgfx/examples/common/cube_atlas.cpp
+  src/font_manager.cpp
+  src/text_buffer_manager.cpp
+  src/text_metrics.cpp
+  src/utf8.cpp
+  src/cube_atlas.cpp
 
   # bgfx
   third_party/bgfx/src/bgfx.cpp
