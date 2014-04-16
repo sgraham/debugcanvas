@@ -58,7 +58,7 @@ struct MainThreadEntry {
 };
 
 struct Context {
-  Context() : m_init(false), m_exit(false) {
+  Context() : initialized_(false), should_exit_(false) {
     memset(s_translate_key, 0, sizeof(s_translate_key));
     s_translate_key[VK_ESCAPE] = Key::Esc;
     s_translate_key[VK_RETURN] = Key::Return;
@@ -151,7 +151,7 @@ struct Context {
     wnd.hIconSm = ::LoadIcon(instance, IDI_APPLICATION);
     ::RegisterClassExA(&wnd);
 
-    m_hwnd = ::CreateWindowA("seaborgium",
+    hwnd_ = ::CreateWindowA("seaborgium",
                              "Seaborgium",
                              WS_OVERLAPPEDWINDOW | WS_VISIBLE,
                              0,
@@ -163,7 +163,7 @@ struct Context {
                              instance,
                              0);
 
-    bgfx::winSetHwnd(m_hwnd);
+    bgfx::winSetHwnd(hwnd_);
 
     Adjust(ENTRY_DEFAULT_WIDTH, ENTRY_DEFAULT_HEIGHT);
     m_width = ENTRY_DEFAULT_WIDTH;
@@ -177,14 +177,14 @@ struct Context {
 
     bx::Thread thread;
     thread.init(mte.ThreadFunc, &mte);
-    m_init = true;
+    initialized_ = true;
 
     event_queue_.PostSizeEvent(m_width, m_height);
 
     MSG msg;
     msg.message = WM_NULL;
 
-    while (!m_exit) {
+    while (!should_exit_) {
       WaitMessage();
 
       while (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE) != 0) {
@@ -195,20 +195,20 @@ struct Context {
 
     thread.shutdown();
 
-    DestroyWindow(m_hwnd);
+    DestroyWindow(hwnd_);
 
     return 0;
   }
 
   LRESULT Process(HWND _hwnd, UINT _id, WPARAM _wparam, LPARAM _lparam) {
-    if (m_init) {
+    if (initialized_) {
       switch (_id) {
         case WM_DESTROY:
           break;
 
         case WM_QUIT:
         case WM_CLOSE:
-          m_exit = true;
+          should_exit_ = true;
           event_queue_.PostExitEvent();
           break;
 
@@ -288,38 +288,38 @@ struct Context {
     m_height = _height;
     m_aspectRatio = float(_width) / float(_height);
 
-    ShowWindow(m_hwnd, SW_SHOWNORMAL);
+    ShowWindow(hwnd_, SW_SHOWNORMAL);
     RECT rect;
     RECT newrect = {0, 0, (LONG)_width, (LONG)_height};
     DWORD style = WS_POPUP | WS_SYSMENU;
 
-    GetWindowRect(m_hwnd, &m_rect);
-    m_style = GetWindowLong(m_hwnd, GWL_STYLE);
+    GetWindowRect(hwnd_, &m_rect);
+    m_style = GetWindowLong(hwnd_, GWL_STYLE);
 
     rect = m_rect;
     style = m_style;
 
-    SetWindowLong(m_hwnd, GWL_STYLE, style);
+    SetWindowLong(hwnd_, GWL_STYLE, style);
     uint32_t prewidth = newrect.right - newrect.left;
     uint32_t preheight = newrect.bottom - newrect.top;
     AdjustWindowRect(&newrect, style, FALSE);
     m_frameWidth = (newrect.right - newrect.left) - prewidth;
     m_frameHeight = (newrect.bottom - newrect.top) - preheight;
-    UpdateWindow(m_hwnd);
+    UpdateWindow(hwnd_);
 
     int32_t left = rect.left;
     int32_t top = rect.top;
     int32_t width = (newrect.right - newrect.left);
     int32_t height = (newrect.bottom - newrect.top);
 
-    SetWindowPos(m_hwnd, HWND_TOP, left, top, width, height, SWP_SHOWWINDOW);
+    SetWindowPos(hwnd_, HWND_TOP, left, top, width, height, SWP_SHOWWINDOW);
 
-    ShowWindow(m_hwnd, SW_RESTORE);
+    ShowWindow(hwnd_, SW_RESTORE);
   }
 
   void setMousePos(int32_t _mx, int32_t _my) {
     POINT pt = {_mx, _my};
-    ClientToScreen(m_hwnd, &pt);
+    ClientToScreen(hwnd_, &pt);
     SetCursorPos(pt.x, pt.y);
   }
 
@@ -328,7 +328,7 @@ struct Context {
 
   EventQueue event_queue_;
 
-  HWND m_hwnd;
+  HWND hwnd_;
   RECT m_rect;
   DWORD m_style;
   uint32_t m_width;
@@ -342,8 +342,8 @@ struct Context {
   int32_t m_mx;
   int32_t m_my;
 
-  bool m_init;
-  bool m_exit;
+  bool initialized_;
+  bool should_exit_;
 };
 
 static Context s_ctx;
@@ -360,7 +360,7 @@ void Release(const Event* event) { s_ctx.event_queue_.Release(event); }
 int32_t MainThreadEntry::ThreadFunc(void* user_data) {
   MainThreadEntry* self = static_cast<MainThreadEntry*>(user_data);
   int32_t result = _main_(self->argc, self->argv);
-  PostMessage(s_ctx.m_hwnd, WM_QUIT, 0, 0);
+  PostMessage(s_ctx.hwnd_, WM_QUIT, 0, 0);
   return result;
 }
 
