@@ -264,8 +264,8 @@ struct Context {
 
           if (key == Key::Print && ((uint32_t)(_lparam) >> 30) == 0x3) {
             // VK_SNAPSHOT doesn't generate keydown event. Fire on down event
-            // when previous
-            // key state bit is set to 1 and transition state bit is set to 1.
+            // when previous key state bit is set to 1 and transition state
+            // bit is set to 1.
             //
             // http://msdn.microsoft.com/en-us/library/windows/desktop/ms646280%28v=vs.85%29.aspx
             event_queue_.PostKeyEvent(key, modifiers, true);
