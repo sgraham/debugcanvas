@@ -3,6 +3,7 @@ project (DEBUGCANVAS)
 
 add_executable(debugcanvas
   src/main.cc
+  # XXX Windows only.
   src/entry_win.cc
 
   # bgfx example setup stuff, to be nuked.
@@ -26,24 +27,30 @@ add_executable(debugcanvas
   third_party/bgfx/src/vertexdecl.cpp
   )
 
+# XXX Windows only.
 set (CMAKE_CXX_FLAGS "/W4 /WX /wd4530 /wd4244 /wd4127 /wd4512 /wd4245 /wd4201 /wd4324 /wd4611")
 
 add_definitions (
-  -D_CRT_SECURE_NO_WARNINGS
   -DBX_CONFIG_ENABLE_MSVC_LEVEL4_WARNINGS=1
+  -D_CRT_SECURE_NO_WARNINGS
   -D__STDC_LIMIT_MACROS
   -D__STDC_FORMAT_MACROS
   -D__STDC_CONSTANT_MACROS
-  # XXX
+
+  # XXX Debug only.
   -DBGFX_CONFIG_DEBUG=1
+
+  # XXX Windows only.
   -DBGFX_CONFIG_RENDERER_DIRECT3D11=1
   )
 
 include_directories(
   third_party
-  third_party/bx/include/compat/msvc
   third_party/bx/include
   third_party/bgfx/include
+
+  # XXX Windows only.
+  third_party/bx/include/compat/msvc
 
   # XXX
   third_party/bgfx/examples/common
