@@ -220,4 +220,11 @@ class EventQueue {
   bx::SpScUnboundedQueue<Event> queue_;
 };
 
+const Event* Poll();
+void Release(const Event* event);
+bool ProcessEvents(uint32_t& width,
+                   uint32_t& height,
+                   uint32_t& debug,
+                   uint32_t& reset);
+
 #endif  // SYSTEM_H_

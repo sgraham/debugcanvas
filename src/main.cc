@@ -106,14 +106,13 @@ int _main_(int /*_argc*/, char** /*_argv*/) {
   textBufferManager->appendText(
       scrollableBuffer, fontScaled, textBegin, textEnd);
 
-  entry::MouseState mouseState;
   float textScroll = 0.0f;
   float textRotation = 0.0f;
   float textScale = 1.0f;
 
   bgfx::setDebug(BGFX_DEBUG_STATS | BGFX_DEBUG_TEXT);
 
-  while (!entry::processEvents(width, height, debug, reset, &mouseState)) {
+  while (!ProcessEvents(width, height, debug, reset)) {
     bool recomputeVisibleText = false;
 
     // On scroll...

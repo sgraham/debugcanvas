@@ -3,20 +3,10 @@ project (DEBUGCANVAS)
 
 add_executable(debugcanvas
   src/main.cc
+  src/entry_win.cc
+  src/system.cc
 
   # bgfx example setup stuff, to be nuked.
-  third_party/bgfx/examples/common/entry/camera.cpp
-  third_party/bgfx/examples/common/entry/cmd.cpp
-  third_party/bgfx/examples/common/entry/dbg.cpp
-  third_party/bgfx/examples/common/entry/entry.cpp
-  third_party/bgfx/examples/common/entry/entry_android.cpp
-  third_party/bgfx/examples/common/entry/entry_asmjs.cpp
-  third_party/bgfx/examples/common/entry/entry_linux.cpp
-  third_party/bgfx/examples/common/entry/entry_nacl.cpp
-  third_party/bgfx/examples/common/entry/entry_qnx.cpp
-  third_party/bgfx/examples/common/entry/entry_sdl.cpp
-  third_party/bgfx/examples/common/entry/entry_windows.cpp
-  third_party/bgfx/examples/common/entry/input.cpp
   third_party/bgfx/examples/common/font/font_manager.cpp
   third_party/bgfx/examples/common/font/text_buffer_manager.cpp
   third_party/bgfx/examples/common/font/text_metrics.cpp
