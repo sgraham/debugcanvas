@@ -139,8 +139,9 @@ struct KeyEvent : public Event {
 struct MouseEvent : public Event {
   int mx;
   int my;
-  int wheel;
+  float wheel;
   MouseButton::Enum button;
+  int modifiers;
   bool down;
   bool move;
 };
@@ -175,30 +176,37 @@ class EventQueue {
     e->type = Event::Mouse;
     e->mx = mx;
     e->my = my;
-    e->wheel = 0;
+    e->wheel = 0.f;
     e->button = MouseButton::None;
+    e->modifiers = 0;
     e->down = false;
     queue_.push(e);
   }
 
-  void PostMouseEventWheel(int mx, int my, int wheel) {
+  void PostMouseEventWheel(int mx, int my, float wheel, int modifiers) {
     MouseEvent* e = new MouseEvent;
     e->type = Event::Mouse;
     e->mx = mx;
     e->my = my;
     e->wheel = wheel;
     e->button = MouseButton::None;
+    e->modifiers = modifiers;
     e->down = false;
     queue_.push(e);
   }
 
-  void PostMouseEventButton(int mx, int my, MouseButton::Enum button, bool down) {
+  void PostMouseEventButton(int mx,
+                            int my,
+                            MouseButton::Enum button,
+                            int modifiers,
+                            bool down) {
     MouseEvent* e = new MouseEvent;
     e->type = Event::Mouse;
     e->mx = mx;
     e->my = my;
-    e->wheel = 0;
+    e->wheel = 0.f;
     e->button = button;
+    e->modifiers = modifiers;
     e->down = down;
     queue_.push(e);
   }

@@ -13,6 +13,12 @@
 
 #include "system.h"
 
+float Slide(float to, float current, float rate = 0.08) {
+  float remaining = (to - current);
+  current = current + remaining * rate;
+  return current;
+}
+
 long int fsize(FILE* _file) {
   long int pos = ftell(_file);
   fseek(_file, 0L, SEEK_END);
@@ -56,6 +62,8 @@ TrueTypeHandle loadTtf(FontManager* _fm, const char* _filePath) {
 
 static uint32_t s_debug = BGFX_DEBUG_NONE;
 static uint32_t s_reset = BGFX_RESET_NONE;
+static float s_scale_target = 1.f;
+static float s_scale = 1.f;
 static bool s_exit = false;
 
 bool ProcessEvents(uint32_t& _width,
@@ -85,8 +93,21 @@ bool ProcessEvents(uint32_t& _width,
 
         case Event::Key: {
           const KeyEvent* key = static_cast<const KeyEvent*>(ev);
-          if (key->key == Key::KeyV) {
-            s_reset &= ~BGFX_RESET_VSYNC;
+          if (key->key == Key::Key0 &&
+                     (key->modifiers &
+                      (Modifier::LeftCtrl | Modifier::RightCtrl))) {
+            s_scale_target = 1.f;
+          }
+        } break;
+
+        case Event::Mouse: {
+          const MouseEvent* mouse = static_cast<const MouseEvent*>(ev);
+          if (mouse->modifiers & (Modifier::LeftCtrl | Modifier::RightCtrl)) {
+            const float kWheelScaleFactor = 1.08f;
+            if (mouse->wheel > 0.f)
+              s_scale_target *= kWheelScaleFactor;
+            else if (mouse->wheel < 0.f)
+              s_scale_target /= kWheelScaleFactor;
           }
         } break;
 
@@ -117,7 +138,7 @@ int RealMain(int /*_argc*/, char** /*_argv*/) {
   uint32_t width = 1280;
   uint32_t height = 720;
   uint32_t debug = BGFX_DEBUG_TEXT;
-  uint32_t reset = BGFX_RESET_VSYNC;
+  uint32_t reset = BGFX_RESET_NONE;
 
   bgfx::init();
 
@@ -167,7 +188,6 @@ int RealMain(int /*_argc*/, char** /*_argv*/) {
 
   float textScroll = 0.0f;
   float textRotation = 0.0f;
-  float textScale = 1.0f;
 
   bgfx::setDebug(BGFX_DEBUG_STATS | BGFX_DEBUG_TEXT);
 
@@ -207,6 +227,7 @@ int RealMain(int /*_argc*/, char** /*_argv*/) {
         0, 0, 0x0f, "Frame: % 7.3f[ms]", double(frameTime) * toMs);
         */
 
+    s_scale = Slide(s_scale_target, s_scale);
     float at[3] = {0, 0, 0.0f};
     float eye[3] = {0, 0, -1.0f};
 
@@ -241,7 +262,7 @@ int RealMain(int /*_argc*/, char** /*_argv*/) {
                  -(textAreaWidth * 0.5f),
                  (-visibleLineCount) * metrics.getLineHeight() * 0.5f,
                  0);
-    mtxScale(textScaleMat, textScale, textScale, 1.0f);
+    mtxScale(textScaleMat, s_scale, s_scale, 1.0f);
     mtxTranslate(screenCenterMat, ((width) * 0.5f), ((height) * 0.5f), 0);
 
     // first translate to text center, then scale, then rotate

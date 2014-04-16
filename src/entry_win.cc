@@ -11,6 +11,7 @@
 
 #include <bx/uint32_t.h>
 #include <bx/thread.h>
+#include <bgfx.h>
 
 #include <windowsx.h>
 
@@ -218,13 +219,23 @@ struct Context {
           event_queue_.PostMouseEventMove(mx, my);
         } break;
 
+        case WM_MOUSEWHEEL: {
+          int32_t mx = GET_X_LPARAM(_lparam);
+          int32_t my = GET_Y_LPARAM(_lparam);
+          short wheel = HIWORD(_wparam);
+          float wheel_norm = wheel / static_cast<float>(WHEEL_DELTA);
+          uint8_t modifiers = TranslateKeyModifiers();
+          event_queue_.PostMouseEventWheel(mx, my, wheel_norm, modifiers);
+        } break;
+
         case WM_LBUTTONDOWN:
         case WM_LBUTTONUP:
         case WM_LBUTTONDBLCLK: {
           int32_t mx = GET_X_LPARAM(_lparam);
           int32_t my = GET_Y_LPARAM(_lparam);
+          uint8_t modifiers = TranslateKeyModifiers();
           event_queue_.PostMouseEventButton(
-              mx, my, MouseButton::Left, _id == WM_LBUTTONDOWN);
+              mx, my, MouseButton::Left, modifiers, _id == WM_LBUTTONDOWN);
         } break;
 
         case WM_MBUTTONDOWN:
@@ -232,8 +243,9 @@ struct Context {
         case WM_MBUTTONDBLCLK: {
           int32_t mx = GET_X_LPARAM(_lparam);
           int32_t my = GET_Y_LPARAM(_lparam);
+          uint8_t modifiers = TranslateKeyModifiers();
           event_queue_.PostMouseEventButton(
-              mx, my, MouseButton::Middle, _id == WM_MBUTTONDOWN);
+              mx, my, MouseButton::Middle, modifiers, _id == WM_MBUTTONDOWN);
         } break;
 
         case WM_RBUTTONUP:
@@ -241,8 +253,9 @@ struct Context {
         case WM_RBUTTONDBLCLK: {
           int32_t mx = GET_X_LPARAM(_lparam);
           int32_t my = GET_Y_LPARAM(_lparam);
+          uint8_t modifiers = TranslateKeyModifiers();
           event_queue_.PostMouseEventButton(
-              mx, my, MouseButton::Right, _id == WM_RBUTTONDOWN);
+              mx, my, MouseButton::Right, modifiers, _id == WM_RBUTTONDOWN);
         } break;
 
         case WM_KEYDOWN:
