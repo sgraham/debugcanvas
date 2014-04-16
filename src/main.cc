@@ -64,6 +64,7 @@ static uint32_t s_debug = BGFX_DEBUG_NONE;
 static uint32_t s_reset = BGFX_RESET_NONE;
 static float s_scale_target = 1.f;
 static float s_scale = 1.f;
+static float s_text_scroll = 0;
 static bool s_exit = false;
 
 bool ProcessEvents(uint32_t& _width,
@@ -108,6 +109,10 @@ bool ProcessEvents(uint32_t& _width,
               s_scale_target *= kWheelScaleFactor;
             else if (mouse->wheel < 0.f)
               s_scale_target /= kWheelScaleFactor;
+          } else {
+            s_text_scroll -= mouse->wheel * 3.f;
+            if (s_text_scroll < 0.f)
+              s_text_scroll = 0;
           }
         } break;
 
@@ -172,31 +177,29 @@ int RealMain(int /*_argc*/, char** /*_argv*/) {
   TextLineMetrics metrics(fontManager->getFontInfo(fontScaled));
   // uint32_t lineCount = metrics.getLineCount(bigText);
 
-  float visibleLineCount = 160.0f;
+  int visibleLineCount = 50;
 
   const char* textBegin = 0;
   const char* textEnd = 0;
-  metrics.getSubText(
-      bigText, 0, (uint32_t)visibleLineCount, textBegin, textEnd);
+  metrics.getSubText(bigText, 0, visibleLineCount, textBegin, textEnd);
 
   TextBufferHandle scrollableBuffer = textBufferManager->createTextBuffer(
       FONT_TYPE_DISTANCE_SUBPIXEL, BufferType::Transient);
   textBufferManager->setTextColor(scrollableBuffer, 0x839496ff);
+  //textBufferManager->setTextColor(scrollableBuffer, 0xffffffff);
 
   textBufferManager->appendText(
       scrollableBuffer, fontScaled, textBegin, textEnd);
 
-  float textScroll = 0.0f;
-  float textRotation = 0.0f;
+  float textScroll = 0;
 
   bgfx::setDebug(BGFX_DEBUG_STATS | BGFX_DEBUG_TEXT);
 
   while (!ProcessEvents(width, height, debug, reset)) {
-    bool recomputeVisibleText = false;
-
-    // On scroll...
+    bool recomputeVisibleText = textScroll != s_text_scroll;
 
     if (recomputeVisibleText) {
+      textScroll = s_text_scroll;
       textBufferManager->clearTextBuffer(scrollableBuffer);
       metrics.getSubText(bigText,
                          (uint32_t)textScroll,
@@ -252,12 +255,10 @@ int RealMain(int /*_argc*/, char** /*_argv*/) {
     float textAreaWidth =
         0.5f * 66.0f * fontManager->getFontInfo(fontScaled).maxAdvanceWidth;
 
-    float textRotMat[16];
     float textCenterMat[16];
     float textScaleMat[16];
     float screenCenterMat[16];
 
-    mtxRotateZ(textRotMat, textRotation);
     mtxTranslate(textCenterMat,
                  -(textAreaWidth * 0.5f),
                  (-visibleLineCount) * metrics.getLineHeight() * 0.5f,
@@ -265,12 +266,9 @@ int RealMain(int /*_argc*/, char** /*_argv*/) {
     mtxScale(textScaleMat, s_scale, s_scale, 1.0f);
     mtxTranslate(screenCenterMat, ((width) * 0.5f), ((height) * 0.5f), 0);
 
-    // first translate to text center, then scale, then rotate
-    float tmpMat[16];
-    mtxMul(tmpMat, textCenterMat, textRotMat);
-
+    // first translate to text center, then scale
     float tmpMat2[16];
-    mtxMul(tmpMat2, tmpMat, textScaleMat);
+    mtxMul(tmpMat2, textCenterMat, textScaleMat);
 
     float tmpMat3[16];
     mtxMul(tmpMat3, tmpMat2, screenCenterMat);
