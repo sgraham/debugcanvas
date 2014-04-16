@@ -152,6 +152,9 @@ struct SizeEvent : public Event {
 
 class EventQueue {
  public:
+  // Post* are only to be called from the initial thread that's pulling off the
+  // system message loop. The consumer is the main thread, via Poll.
+
   void PostExitEvent() {
     Event* e = new Event;
     e->type = Event::Exit;

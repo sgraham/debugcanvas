@@ -16,12 +16,14 @@
 
 extern int _main_(int _argc, char** _argv);
 
+namespace {
+
 struct KeyModifiersMapping {
   int vk;
   Modifier::Enum modifier;
 };
 
-static const KeyModifiersMapping s_translate_key_modifiers[8] = {
+const KeyModifiersMapping s_translate_key_modifiers[8] = {
     {VK_LMENU, Modifier::LeftAlt},
     {VK_RMENU, Modifier::RightAlt},
     {VK_LCONTROL, Modifier::LeftCtrl},
@@ -32,7 +34,7 @@ static const KeyModifiersMapping s_translate_key_modifiers[8] = {
     {VK_RWIN, Modifier::RightMeta},
 };
 
-static uint8_t TranslateKeyModifiers() {
+uint8_t TranslateKeyModifiers() {
   uint8_t modifiers = 0;
   for (uint32_t i = 0; i < BX_COUNTOF(s_translate_key_modifiers); ++i) {
     const KeyModifiersMapping& kmm = s_translate_key_modifiers[i];
@@ -41,9 +43,9 @@ static uint8_t TranslateKeyModifiers() {
   return modifiers;
 }
 
-static uint8_t s_translate_key[256];
+uint8_t s_translate_key[256];
 
-static Key::Enum TranslateKey(WPARAM wparam) {
+Key::Enum TranslateKey(WPARAM wparam) {
   return (Key::Enum)s_translate_key[wparam & 0xff];
 }
 
@@ -280,26 +282,28 @@ struct Context {
   bool should_exit_;
 };
 
-static Context s_ctx;
+Context g_context;
 
 LRESULT CALLBACK
 Context::WndProc(HWND _hwnd, UINT _id, WPARAM _wparam, LPARAM _lparam) {
-  return s_ctx.Process(_hwnd, _id, _wparam, _lparam);
+  return g_context.Process(_hwnd, _id, _wparam, _lparam);
 }
-
-const Event* Poll() { return s_ctx.event_queue_.Poll(); }
-
-void Release(const Event* event) { s_ctx.event_queue_.Release(event); }
 
 int32_t MainThreadEntry::ThreadFunc(void* user_data) {
   MainThreadEntry* self = static_cast<MainThreadEntry*>(user_data);
   int32_t result = _main_(self->argc, self->argv);
-  PostMessage(s_ctx.hwnd_, WM_QUIT, 0, 0);
+  PostMessage(g_context.hwnd_, WM_QUIT, 0, 0);
   return result;
 }
 
+}  // namespace
+
+const Event* Poll() { return g_context.event_queue_.Poll(); }
+
+void Release(const Event* event) { g_context.event_queue_.Release(event); }
+
 int main(int argc, char** argv) {
-  return s_ctx.Run(argc, argv);
+  return g_context.Run(argc, argv);
 }
 
 #endif  // BX_PLATFORM_WINDOWS
