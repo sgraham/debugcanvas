@@ -166,10 +166,6 @@ struct Context {
     bgfx::winSetHwnd(hwnd_);
 
     Adjust(ENTRY_DEFAULT_WIDTH, ENTRY_DEFAULT_HEIGHT);
-    m_width = ENTRY_DEFAULT_WIDTH;
-    m_height = ENTRY_DEFAULT_HEIGHT;
-    m_oldWidth = ENTRY_DEFAULT_WIDTH;
-    m_oldHeight = ENTRY_DEFAULT_HEIGHT;
 
     MainThreadEntry mte;
     mte.argc = argc;
@@ -179,7 +175,7 @@ struct Context {
     thread.init(mte.ThreadFunc, &mte);
     initialized_ = true;
 
-    event_queue_.PostSizeEvent(m_width, m_height);
+    event_queue_.PostSizeEvent(ENTRY_DEFAULT_WIDTH, ENTRY_DEFAULT_HEIGHT);
 
     MSG msg;
     msg.message = WM_NULL;
@@ -215,10 +211,7 @@ struct Context {
         case WM_SIZE: {
           uint32_t width = GET_X_LPARAM(_lparam);
           uint32_t height = GET_Y_LPARAM(_lparam);
-
-          m_width = width;
-          m_height = height;
-          event_queue_.PostSizeEvent(m_width, m_height);
+          event_queue_.PostSizeEvent(width, height);
         } break;
 
         case WM_MOUSEMOVE: {
@@ -284,8 +277,6 @@ struct Context {
   }
 
   void Adjust(uint32_t _width, uint32_t _height) {
-    m_width = _width;
-    m_height = _height;
     m_aspectRatio = float(_width) / float(_height);
 
     ShowWindow(hwnd_, SW_SHOWNORMAL);
@@ -300,11 +291,7 @@ struct Context {
     style = m_style;
 
     SetWindowLong(hwnd_, GWL_STYLE, style);
-    uint32_t prewidth = newrect.right - newrect.left;
-    uint32_t preheight = newrect.bottom - newrect.top;
     AdjustWindowRect(&newrect, style, FALSE);
-    m_frameWidth = (newrect.right - newrect.left) - prewidth;
-    m_frameHeight = (newrect.bottom - newrect.top) - preheight;
     UpdateWindow(hwnd_);
 
     int32_t left = rect.left;
@@ -331,12 +318,6 @@ struct Context {
   HWND hwnd_;
   RECT m_rect;
   DWORD m_style;
-  uint32_t m_width;
-  uint32_t m_height;
-  uint32_t m_oldWidth;
-  uint32_t m_oldHeight;
-  uint32_t m_frameWidth;
-  uint32_t m_frameHeight;
   float m_aspectRatio;
 
   int32_t m_mx;
