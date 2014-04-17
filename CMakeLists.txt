@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 project (DEBUGCANVAS)
 
 # XXX Windows only.
-set (CMAKE_CXX_FLAGS "/W4 /WX /wd4530 /wd4244 /wd4127 /wd4512 /wd4245 /wd4201 /wd4324 /wd4611")
+set (CMAKE_CXX_FLAGS "/FC /W4 /WX /wd4530 /wd4244 /wd4127 /wd4512 /wd4245 /wd4201 /wd4324 /wd4611")
 
 add_definitions (
   -DBX_CONFIG_ENABLE_MSVC_LEVEL4_WARNINGS=1
@@ -12,10 +12,10 @@ add_definitions (
   -D__STDC_CONSTANT_MACROS
 
   # XXX Debug only.
-  -DBGFX_CONFIG_DEBUG=1
+  #-DBGFX_CONFIG_DEBUG=1
 
   # XXX Windows only.
-  -DBGFX_CONFIG_RENDERER_DIRECT3D11=1
+  #-DBGFX_CONFIG_RENDERER_DIRECT3D11=1
   )
 
 include_directories(
@@ -33,13 +33,13 @@ include_directories(
 
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/vs_fontsdf.bin.h
-  COMMAND ../third_party/bgfx/.build/win32_vs2012/bin/shadercRelease -i ../third_party/bgfx/src --type vertex --platform windows -p vs_4_0 -O 3 -f ../src/vs_fontsdf.sc --bin2c vs_fontsdf_dx11 -o ${CMAKE_CURRENT_BINARY_DIR}/vs_fontsdf.bin.h
+  COMMAND ../third_party/bgfx/.build/win32_vs2012/bin/shadercRelease -i ../third_party/bgfx/src --type vertex --platform windows -p vs_3_0 -O 3 -f ../src/vs_fontsdf.sc --bin2c vs_fontsdf_dx9 -o ${CMAKE_CURRENT_BINARY_DIR}/vs_fontsdf.bin.h
   DEPENDS third_party/bgfx/.build/win32_vs2012/bin/shadercRelease.exe src/vs_fontsdf.sc
   )
 
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/fs_fontsdf.bin.h
-  COMMAND ../third_party/bgfx/.build/win32_vs2012/bin/shadercRelease -i ../third_party/bgfx/src --type fragment --platform windows -p ps_4_0 -O 3 -f ../src/fs_fontsdf.sc --bin2c fs_fontsdf_dx11 -o ${CMAKE_CURRENT_BINARY_DIR}/fs_fontsdf.bin.h
+  COMMAND ../third_party/bgfx/.build/win32_vs2012/bin/shadercRelease -i ../third_party/bgfx/src --type fragment --platform windows -p ps_3_0 -O 3 -f ../src/fs_fontsdf.sc --bin2c fs_fontsdf_dx9 -o ${CMAKE_CURRENT_BINARY_DIR}/fs_fontsdf.bin.h
   DEPENDS third_party/bgfx/.build/win32_vs2012/bin/shadercRelease.exe src/fs_fontsdf.sc
   )
 

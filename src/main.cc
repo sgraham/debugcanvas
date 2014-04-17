@@ -155,6 +155,8 @@ int RealMain(int /*_argc*/, char** /*_argv*/) {
   // Set view 0 clear state.
   bgfx::setViewClear(
       0, BGFX_CLEAR_COLOR_BIT | BGFX_CLEAR_DEPTH_BIT, 0x002b36ff, 1.0f, 0);
+  //bgfx::setViewClear(
+      //0, BGFX_CLEAR_COLOR_BIT | BGFX_CLEAR_DEPTH_BIT, 0x000000ff, 1.0f, 0);
 
   char* bigText = loadText("src/main.cc");
 
@@ -162,17 +164,17 @@ int RealMain(int /*_argc*/, char** /*_argv*/) {
   FontManager* fontManager = new FontManager(512);
   TextBufferManager* textBufferManager = new TextBufferManager(fontManager);
 
-  TrueTypeHandle font = loadTtf(fontManager, "art/VeraMono.ttf");
-  //TrueTypeHandle font = loadTtf(fontManager, "art/consola.ttf");
+  //TrueTypeHandle font = loadTtf(fontManager, "art/VeraMono.ttf");
+  TrueTypeHandle font = loadTtf(fontManager, "art/consola.ttf");
   //TrueTypeHandle font = loadTtf(fontManager, "art/Inconsolata.otf");
 
   // Create a distance field font.
   FontHandle fontSdf = fontManager->createFontByPixelSize(
-      font, 0, 48, FONT_TYPE_DISTANCE_SUBPIXEL);
+      font, 0, 48, FONT_TYPE_DISTANCE);
 
   // Create a scaled down version of the same font (without adding anything to
   // the atlas).
-  FontHandle fontScaled = fontManager->createScaledFontToPixelSize(fontSdf, 12);
+  FontHandle fontScaled = fontManager->createScaledFontToPixelSize(fontSdf, 13);
 
   TextLineMetrics metrics(fontManager->getFontInfo(fontScaled));
   // uint32_t lineCount = metrics.getLineCount(bigText);

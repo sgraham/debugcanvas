@@ -550,12 +550,12 @@ TextBufferManager::TextBufferManager(FontManager* _fontManager)
 	switch (bgfx::getRendererType() )
 	{
 	case bgfx::RendererType::Direct3D9:
-    BX_CHECK(false, "todo");
+		vs_fontsdf = bgfx::makeRef(vs_fontsdf_dx9, sizeof(vs_fontsdf_dx9) );
+		fs_fontsdf = bgfx::makeRef(fs_fontsdf_dx9, sizeof(fs_fontsdf_dx9) );
 		break;
 
 	case bgfx::RendererType::Direct3D11:
-		vs_fontsdf = bgfx::makeRef(vs_fontsdf_dx11, sizeof(vs_fontsdf_dx11) );
-		fs_fontsdf = bgfx::makeRef(fs_fontsdf_dx11, sizeof(fs_fontsdf_dx11) );
+    BX_CHECK(false, "todo");
 		break;
 
 	default:
