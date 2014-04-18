@@ -12,8 +12,8 @@
 #include "utf8.h"
 #include "cube_atlas.h"
 
-#include "vs_fontsdf.bin.h"
-#include "fs_fontsdf.bin.h"
+#include "../.build/vs_fontsdf.bin.h"
+#include "../.build/fs_fontsdf.bin.h"
 
 #define MAX_BUFFERED_CHARACTERS (8192 - 5)
 
@@ -549,9 +549,13 @@ TextBufferManager::TextBufferManager(FontManager* _fontManager)
 
 	switch (bgfx::getRendererType() )
 	{
+	case bgfx::RendererType::OpenGL:
+		vs_fontsdf = bgfx::makeRef(vs_fontsdf_glsl, sizeof(vs_fontsdf_glsl) );
+		fs_fontsdf = bgfx::makeRef(fs_fontsdf_glsl, sizeof(fs_fontsdf_glsl) );
+		break;
+
 	case bgfx::RendererType::Direct3D9:
-		vs_fontsdf = bgfx::makeRef(vs_fontsdf_dx9, sizeof(vs_fontsdf_dx9) );
-		fs_fontsdf = bgfx::makeRef(fs_fontsdf_dx9, sizeof(fs_fontsdf_dx9) );
+    BX_CHECK(false, "todo");
 		break;
 
 	case bgfx::RendererType::Direct3D11:

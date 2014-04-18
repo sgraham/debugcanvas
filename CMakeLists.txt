@@ -12,17 +12,16 @@ add_definitions (
   -D__STDC_CONSTANT_MACROS
 
   # XXX Debug only.
-  #-DBGFX_CONFIG_DEBUG=1
+  -DBGFX_CONFIG_DEBUG=1
 
-  # XXX Windows only.
-  #-DBGFX_CONFIG_RENDERER_DIRECT3D11=1
+  -DBGFX_CONFIG_RENDERER_OPENGL=31
   )
 
 include_directories(
   third_party
   third_party/bx/include
   third_party/bgfx/include
-  .build
+  third_party/bgfx/3rdparty/khronos
 
   # XXX Windows only.
   third_party/bx/include/compat/msvc
@@ -33,13 +32,13 @@ include_directories(
 
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/vs_fontsdf.bin.h
-  COMMAND ../third_party/bgfx/.build/win32_vs2012/bin/shadercRelease -i ../third_party/bgfx/src --type vertex --platform windows -p vs_3_0 -O 3 -f ../src/vs_fontsdf.sc --bin2c vs_fontsdf_dx9 -o ${CMAKE_CURRENT_BINARY_DIR}/vs_fontsdf.bin.h
+  COMMAND ../third_party/bgfx/.build/win32_vs2012/bin/shadercRelease -i ../third_party/bgfx/src --type vertex --platform linux -f ../src/vs_fontsdf.sc --bin2c vs_fontsdf_glsl -o ${CMAKE_CURRENT_BINARY_DIR}/vs_fontsdf.bin.h
   DEPENDS third_party/bgfx/.build/win32_vs2012/bin/shadercRelease.exe src/vs_fontsdf.sc
   )
 
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/fs_fontsdf.bin.h
-  COMMAND ../third_party/bgfx/.build/win32_vs2012/bin/shadercRelease -i ../third_party/bgfx/src --type fragment --platform windows -p ps_3_0 -O 3 -f ../src/fs_fontsdf.sc --bin2c fs_fontsdf_dx9 -o ${CMAKE_CURRENT_BINARY_DIR}/fs_fontsdf.bin.h
+  COMMAND ../third_party/bgfx/.build/win32_vs2012/bin/shadercRelease -i ../third_party/bgfx/src --type fragment --platform linux -f ../src/fs_fontsdf.sc --bin2c fs_fontsdf_glsl -o ${CMAKE_CURRENT_BINARY_DIR}/fs_fontsdf.bin.h
   DEPENDS third_party/bgfx/.build/win32_vs2012/bin/shadercRelease.exe src/fs_fontsdf.sc
   )
 
@@ -48,8 +47,8 @@ add_executable(debugcanvas
   # XXX Windows only.
   src/entry_win.cc
 
-  vs_fontsdf.bin.h
-  fs_fontsdf.bin.h
+  .build/vs_fontsdf.bin.h
+  .build/fs_fontsdf.bin.h
 
   # bgfx example setup stuff, to be nuked.
   src/font_manager.cpp

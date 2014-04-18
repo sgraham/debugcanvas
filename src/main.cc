@@ -164,17 +164,20 @@ int RealMain(int /*_argc*/, char** /*_argv*/) {
   FontManager* fontManager = new FontManager(512);
   TextBufferManager* textBufferManager = new TextBufferManager(fontManager);
 
-  //TrueTypeHandle font = loadTtf(fontManager, "art/VeraMono.ttf");
-  TrueTypeHandle font = loadTtf(fontManager, "art/consola.ttf");
+  //TrueTypeHandle font = loadTtf(fontManager, "art/Envy Code R.ttf");
+  //TrueTypeHandle font = loadTtf(fontManager, "art/SourceCodePro-Regular.otf");
+  //TrueTypeHandle font = loadTtf(fontManager, "art/monoOne.otf");
+  TrueTypeHandle font = loadTtf(fontManager, "art/VeraMono.ttf");
+  //TrueTypeHandle font = loadTtf(fontManager, "art/consola.ttf");
   //TrueTypeHandle font = loadTtf(fontManager, "art/Inconsolata.otf");
 
   // Create a distance field font.
   FontHandle fontSdf = fontManager->createFontByPixelSize(
-      font, 0, 48, FONT_TYPE_DISTANCE);
+      font, 0, 48, FONT_TYPE_DISTANCE_SUBPIXEL);
 
   // Create a scaled down version of the same font (without adding anything to
   // the atlas).
-  FontHandle fontScaled = fontManager->createScaledFontToPixelSize(fontSdf, 13);
+  FontHandle fontScaled = fontManager->createScaledFontToPixelSize(fontSdf, 12);
 
   TextLineMetrics metrics(fontManager->getFontInfo(fontScaled));
   // uint32_t lineCount = metrics.getLineCount(bigText);
